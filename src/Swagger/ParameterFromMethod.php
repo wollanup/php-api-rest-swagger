@@ -32,7 +32,7 @@ class ParameterFromMethod extends Parameter
             $class = $param->getClass();
             if ($route->isMakeInstance()) {
                 $suffix = "";
-                if ($route->isMakeInstanceFetch()) {
+                if ($route->isMakeInstanceCreate()) {
                     $suffix = DefinitionModelAdd::SUFFIX;
                 }
                 $this->schema = SchemaHelper::build($param->getClass()->getName() . $suffix);
