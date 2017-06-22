@@ -7,8 +7,8 @@ use Eukles\Entity\EntityRequestInterface;
 use Eukles\Service\Router\RouteInterface;
 use Eukles\Service\Router\RouterInterface;
 use Eukles\Util\DataIterator;
-use Wollanup\Api\Swagger\Definition\DefinitionModel;
 use Wollanup\Api\Swagger\Definition\DefinitionModelAdd;
+use Wollanup\Api\Swagger\Definition\DefinitionModelRead;
 
 /**
  * Class Parameters
@@ -20,7 +20,11 @@ class Definitions extends DataIterator implements \JsonSerializable
 {
     
     /**
-     * @var array
+     * @var ContainerInterface
+     */
+    protected $container;
+    /**
+     * @var Definition[]
      */
     protected $pool = [];
     
@@ -28,16 +32,25 @@ class Definitions extends DataIterator implements \JsonSerializable
      * Definitions constructor.
      *
      * @param ContainerInterface $container
-     * @param RouterInterface    $router
+     */
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+    
+    /**
+     * Definitions constructor.
+     *
+     * @param RouterInterface $router
      *
      * @return $this
      */
-    public function buildAll(ContainerInterface $container, RouterInterface $router = null)
+    public function buildAll(RouterInterface $router = null)
     {
         foreach ($router->getRoutesMap() as $routeMap) {
             /** @var RouteInterface $route */
             foreach ($routeMap as $route) {
-                $this->buildDefinition($container, $route);
+                $this->buildDefinition($route);
             }
         }
         
@@ -45,25 +58,46 @@ class Definitions extends DataIterator implements \JsonSerializable
     }
     
     /**
-     * @param ContainerInterface $container
-     * @param RouteInterface     $route
+     * @param RouteInterface $route
      */
-    public function buildDefinition(ContainerInterface $container, RouteInterface $route)
+    public function buildDefinition(RouteInterface $route)
     {
         if ($route->isMakeInstance()) {
             $className = $route->getRequestClass();
             if (!isset($this->pool[$className])) {
                 $this->pool[$className] = true;
                 /** @var EntityRequestInterface $requestInstance */
-                $requestInstance = new $className($container);
-                
-                $model                         = new DefinitionModel($requestInstance);
+                $requestInstance = new $className($this->container);
+    
+                $model                         = new DefinitionModelRead($requestInstance);
                 $this->data[$model->getName()] = $model;
                 
                 $modelAdd                         = new DefinitionModelAdd($requestInstance);
                 $this->data[$modelAdd->getName()] = $modelAdd;
             }
         }
+    }
+    
+    /**
+     *
+     * @param RouteInterface $route
+     * @param string         $suffix
+     *
+     * @return Definition
+     */
+    public function getDefinition($route, $suffix = '')
+    {
+        return $this->data[$route->getRequestClass() . $suffix];
+    }
+    
+    /**
+     * @param RouteInterface $route
+     *
+     * @return bool
+     */
+    public function hasDefinition(RouteInterface $route)
+    {
+        return isset($this->pool[$route->getRequestClass()]);
     }
     
     /**

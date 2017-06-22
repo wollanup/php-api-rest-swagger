@@ -6,7 +6,10 @@ use Eukles\Service\Pagination\PaginationInterface;
 use Eukles\Service\QueryModifier\QueryModifierInterface;
 use Eukles\Service\Router\RouteInterface;
 use Eukles\Util\DataIterator;
+use phpDocumentor\Reflection\DocBlock\Tags\Param;
+use phpDocumentor\Reflection\DocBlockFactory;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
+use Wollanup\Api\Swagger\Definition\DefinitionModelAdd;
 use Wollanup\Api\Swagger\Parameter\Filter\FilterOperator;
 use Wollanup\Api\Swagger\Parameter\Filter\FilterProperty;
 use Wollanup\Api\Swagger\Parameter\Filter\FilterValue;
@@ -39,10 +42,24 @@ class Parameters extends DataIterator implements \JsonSerializable
      * @param \ReflectionMethod $r
      * @param RouteInterface    $route
      * @param array             $routePattern
+     * @param Definitions       $definitions
      */
-    public function __construct(\ReflectionMethod $r, RouteInterface $route, array $routePattern)
-    {
+    public function __construct(
+        \ReflectionMethod $r,
+        RouteInterface $route,
+        array $routePattern,
+        Definitions $definitions
+    ) {
         $this->buildPathParameters($routePattern);
+        
+        # Params Descriptions (built here because we only have an array of @param)
+        $paramsDocBlock = [];
+        if ($r->getDocComment()) {
+            $docBlock       = DocBlockFactory::createInstance()->create($r->getDocComment());
+            $paramsDocBlock = $docBlock->getTagsByName('param');
+        }
+        
+        # Build parameters
         foreach ($r->getParameters() as $param) {
             $class = $param->getClass();
             // When param is already present in path, just skip it
@@ -50,7 +67,6 @@ class Parameters extends DataIterator implements \JsonSerializable
                 continue;
             }
             // When param is a fetched resource instance, just skip it
-            
             if ($class && $class->implementsInterface(ActiveRecordInterface::class) && $route->isMakeInstanceFetch()) {
                 continue;
             }
@@ -70,11 +86,46 @@ class Parameters extends DataIterator implements \JsonSerializable
                     continue;
                 }
             }
-            $parameter    = new ParameterFromMethod($param, $route);
-            $this->data[] = $parameter;
-            
+            $parameter = new ParameterFromMethod($r, $param, $route, $definitions);
+    
+            # Description
+            /**
+             * @var int   $index
+             * @var Param $item
+             */
+            foreach ($paramsDocBlock as $index => $item) {
+                if ($item->getVariableName() === $param->getName()) {
+                    $parameter->setDescription($item->getDescription()->render());
+                    unset($paramsDocBlock[$index]);
+                    break;
+                }
+            }
+    
+            # File Upload
             if ($parameter->isFileUpload()) {
                 $this->fileUpload = true;
+            }
+    
+            # Add parameter
+            $this->data[] = $parameter;
+        }
+        if ($this->fileUpload && $route->isMakeInstanceCreate()) {
+            foreach ($this->data as $key => $parameter) {
+                $parameter->setIn('formData');
+                if ($parameter->getSchema()) {
+                    
+                    # Removes parameter and replace by list of properties of schema
+                    unset($this->data[$key]);
+                    
+                    if (!$definitions->hasDefinition($route)) {
+                        $definitions->buildDefinition($route);
+                    }
+                    $definition = $definitions->getDefinition($route, DefinitionModelAdd::SUFFIX);
+                    foreach ($definition->getProperties() as $property) {
+                        $property->setIn(Parameter::IN_FORM_DATA);
+                        $this->data[] = $property;
+                    }
+                }
             }
         }
     }

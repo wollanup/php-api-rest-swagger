@@ -15,6 +15,7 @@ use Eukles\RouteMap\RouteMapInterface;
 use Eukles\Service\Router\RouteInterface;
 use FastRoute\RouteParser\Std;
 use PHPUnit\Framework\TestCase;
+use Wollanup\Api\Swagger\Definitions;
 use Wollanup\Api\Swagger\Operation;
 
 class OperationTest extends TestCase
@@ -45,7 +46,7 @@ class OperationTest extends TestCase
             ->setActionMethod($method);
         $parser          = new Std();
         $routesPattern   = $parser->parse($this->route->getPattern());
-        $this->operation = new Operation($this->route, $routesPattern[0]);
+        $this->operation = new Operation($this->route, $routesPattern[0], new Definitions($this->container));
         
         return $this->operation;
     }

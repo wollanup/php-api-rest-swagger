@@ -18,6 +18,16 @@ class Operations extends DataIterator implements \JsonSerializable
 {
     
     /**
+     * @var Definitions
+     */
+    protected $definitions;
+    
+    public function __construct(Definitions $definitions)
+    {
+        $this->definitions = $definitions;
+    }
+    
+    /**
      * Parameters constructor.
      *
      * @param RouterInterface $router
@@ -31,7 +41,7 @@ class Operations extends DataIterator implements \JsonSerializable
             /** @var RouteInterface $route */
             $tags = [TagHelper::buildTagName($routeMap)];
             foreach ($routeMap as $route) {
-                $this->buildOperation($route, $tags);
+                $this->buildOperation($route, $tags, $this->definitions);
             }
         }
         
@@ -43,9 +53,9 @@ class Operations extends DataIterator implements \JsonSerializable
      *
      * @param array          $tags
      *
-     * @return Operation
+     * @param Definitions    $definitions
      */
-    public function buildOperation(RouteInterface $route, array $tags)
+    public function buildOperation(RouteInterface $route, array $tags, Definitions $definitions)
     {
         $parser        = new Std();
         $routesPattern = $parser->parse($route->getPattern());
@@ -53,7 +63,7 @@ class Operations extends DataIterator implements \JsonSerializable
             throw new \InvalidArgumentException('Unable to parse route');
         }
         foreach ($routesPattern as $routePattern) {
-            $operation = new Operation($route, $routePattern);
+            $operation = new Operation($route, $routePattern, $definitions);
             if (count($this->data)) {
                 /** @var Operation $previousOp */
                 $previousOp = $this->data[count($this->data) - 1];
@@ -68,8 +78,6 @@ class Operations extends DataIterator implements \JsonSerializable
             
             $this->data[] = $operation;
         }
-        
-        return $operation;
     }
     
     /**

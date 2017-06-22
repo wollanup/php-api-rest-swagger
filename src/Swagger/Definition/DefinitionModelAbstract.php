@@ -8,32 +8,21 @@
 
 namespace Wollanup\Api\Swagger\Definition;
 
-use Eukles\Entity\EntityRequestInterface;
 use Propel\Runtime\Map\TableMap;
 use Wollanup\Api\Swagger\Definition;
+use Wollanup\Api\Swagger\Parameter;
 
 /**
  * Class DefinitionModel
  *
  * @package Wollanup\Api\Swagger
  */
-class DefinitionModel extends Definition implements \JsonSerializable
+abstract class DefinitionModelAbstract extends Definition implements \JsonSerializable
 {
     
     protected $modelProperties;
     protected $type = 'object';
     
-    /**
-     * DefinitionModel constructor.
-     *
-     * @param EntityRequestInterface $entityRequest
-     */
-    public function __construct(EntityRequestInterface $entityRequest)
-    {
-        $this->modelProperties = $entityRequest->getExposedProperties();
-        $this->name            = get_class($entityRequest->instantiateActiveRecord());
-        $this->buildProperties($entityRequest->getTableMap());
-    }
     
     /**
      * @param TableMap $tableMap
@@ -42,31 +31,32 @@ class DefinitionModel extends Definition implements \JsonSerializable
     {
         foreach ($this->modelProperties as $property) {
             $columnMap = $tableMap->getColumnByPhpName($property);
-            
-            $propertyData = [
-                "type" => $this->convertType($columnMap->getType()),
-            ];
-            
-            # Default
-            $defaultValue = $columnMap->getDefaultValue();
-            if ($defaultValue) {
-                $propertyData["default"] = $columnMap->getDefaultValue();
+            $param     = new Parameter();
+            if ($columnMap->isForeignKey()) {
+                $param->setDescription("Related " . $columnMap->getRelation()->getForeignTable()->getPhpName() . "ID");
+            } else {
+                $param->setDescription("{$property} field");
             }
-            
+            $param->setName(lcfirst($property));
+            $param->setType($this->convertType($columnMap->getType()));
+            $param->setRequired($columnMap->isNotNull());
+            if ($columnMap->getDefaultValue()) {
+                $param->setDefault($columnMap->getDefaultValue());
+            }
             # Array
-            if ($propertyData["type"] === "array") {
-                $propertyData["items"] = ["type" => "string"];
+            if ($param->isTypeArray()) {
+                $param->setItems(["type" => "string"]);
                 if ($columnMap->getValueSet()) {
-                    $propertyData["enum"] = $columnMap->getValueSet();
+                    $param->setEnum($columnMap->getValueSet());
                 }
             }
             
             # Enum
             if ($columnMap->getValueSet()) {
-                $propertyData["items"]["enum"] = $columnMap->getValueSet();
+                $param->setEnum($columnMap->getValueSet());
             }
-            
-            $this->properties[lcfirst($property)] = $propertyData;
+    
+            $this->properties[lcfirst($property)] = $param;
         }
     }
     

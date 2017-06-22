@@ -15,7 +15,7 @@ class Definition implements \JsonSerializable
      */
     protected $name = "";
     /**
-     * @var array
+     * @var Parameter[]
      */
     protected $properties = [];
     /**
@@ -32,7 +32,7 @@ class Definition implements \JsonSerializable
     }
     
     /**
-     * @return array
+     * @return Parameter[]
      */
     public function getProperties()/*: array*/
     {

@@ -10,6 +10,10 @@ namespace Wollanup\Api\Swagger;
 class Parameter implements \JsonSerializable
 {
     
+    const IN_FORM_DATA = 'formData';
+    const IN_QUERY = 'query';
+    const IN_PATH = 'path';
+    const IN_BODY = 'body';
     /**
      * Sets a default value to the parameter.
      * The type of the value depends on the defined type.
@@ -23,9 +27,17 @@ class Parameter implements \JsonSerializable
      */
     protected $description = "";
     /**
+     * @var null|array
+     */
+    protected $enum = null;
+    /**
      * @var bool
      */
     protected $fileUpload = false;
+    /**
+     * @var string
+     */
+    protected $format = "";
     /**
      *  The location of the parameter.
      * Possible values are "query", "header", "path", "formData" or "body".
@@ -33,6 +45,10 @@ class Parameter implements \JsonSerializable
      * @var string
      */
     protected $in = "query";
+    /**
+     * @var null|array
+     */
+    protected $items = null;
     /**
      * The name of the parameter.
      * Parameter names are case sensitive.
@@ -87,7 +103,7 @@ class Parameter implements \JsonSerializable
         
         return $this;
     }
-    
+
     /**
      * @return string
      */
@@ -111,6 +127,46 @@ class Parameter implements \JsonSerializable
     }
     
     /**
+     * @return array|null
+     */
+    public function getEnum()
+    {
+        return $this->enum;
+    }
+    
+    /**
+     * @param array|null $enum
+     *
+     * @return Parameter
+     */
+    public function setEnum(array $enum)
+    {
+        $this->enum = $enum;
+        
+        return $this;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getFormat()
+    {
+        return $this->format;
+    }
+    
+    /**
+     * @param string $format
+     *
+     * @return Parameter
+     */
+    public function setFormat($format)
+    {
+        $this->format = $format;
+        
+        return $this;
+    }
+    
+    /**
      * @return string
      */
     public function getIn()/*: string*/
@@ -128,6 +184,26 @@ class Parameter implements \JsonSerializable
     )/*: Parameter*/
     {
         $this->in = $in;
+        
+        return $this;
+    }
+    
+    /**
+     * @return array|null
+     */
+    public function getItems()
+    {
+        return $this->items;
+    }
+    
+    /**
+     * @param array|null $items
+     *
+     * @return Parameter
+     */
+    public function setItems(array $items)
+    {
+        $this->items = $items;
         
         return $this;
     }
@@ -232,6 +308,11 @@ class Parameter implements \JsonSerializable
         return $this;
     }
     
+    public function isTypeArray()
+    {
+        return $this->type === 'array';
+    }
+    
     /**
      * Specify data which should be serialized to JSON
      *
@@ -249,17 +330,20 @@ class Parameter implements \JsonSerializable
             "required"    => $this->isRequired(),
         ];
         if ($param['in'] === 'body') {
-            $param["schema"] = $this->getSchema();
+            $param["schema"] = SchemaHelper::build($this->getSchema());
         } else {
             $param["type"] = $this->getType();
             if ($this->hasDefault()) {
                 $param["default"] = $this->getDefault();
             }
         }
-        if ($this->type === 'array') {
+        if ($this->isTypeArray()) {
             $param["items"] = [
-                "type" => "string",
+                "type" => "string", // TODO determine type
             ];
+        }
+        if ($this->getEnum()) {
+            $param['enum'] = $this->getEnum();
         }
         
         return $param;

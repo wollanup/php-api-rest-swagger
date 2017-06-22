@@ -71,8 +71,9 @@ class Operation implements \JsonSerializable
      *
      * @param RouteInterface $route
      * @param array          $routePattern
+     * @param Definitions    $definitions
      */
-    public function __construct(RouteInterface $route, array $routePattern)
+    public function __construct(RouteInterface $route, array $routePattern, Definitions $definitions)
     {
         
         $this->routePattern = $routePattern;
@@ -88,8 +89,8 @@ class Operation implements \JsonSerializable
         $rMethod = $rClass->getMethod($method);
         
         $this->buildCommentData($rMethod);
-        
-        $this->parameters = new Parameters($rMethod, $route, $this->routePattern);
+    
+        $this->parameters = new Parameters($rMethod, $route, $this->routePattern, $definitions);
         
         if ($this->parameters->hasFileUpload()) {
             $this->consumes = ['multipart/form-data'];
@@ -103,12 +104,10 @@ class Operation implements \JsonSerializable
      */
     public function buildCommentData(\ReflectionMethod $r)
     {
-        $comment = $r->getDocComment();
-        if (!$comment) {
+        if (!$r->getDocComment()) {
             return;
         }
-        $docBlockFactory = DocBlockFactory::createInstance();
-        $docBlock        = $docBlockFactory->create($r->getDocComment());
+        $docBlock = DocBlockFactory::createInstance()->create($r->getDocComment());
         if ($docBlock->getTagsByName('internal')) {
             $this->internal = true;
         }

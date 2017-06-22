@@ -21,7 +21,7 @@
   },
   "require": {
     "propel/propel": "~2.0@dev",
-    "wollanup/php-api-rest-interfaces": "^1.1.10",
+    "wollanup/php-api-rest-interfaces": "^1.1.17",
     "wollanup/php-api-rest-utils": "^1.1",
     "slim/slim": "^3.8"
   },

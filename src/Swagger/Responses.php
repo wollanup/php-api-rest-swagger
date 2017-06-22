@@ -12,12 +12,14 @@ class Responses implements \JsonSerializable
     
     public function __construct(\ReflectionMethod $r)
     {
-        if ($r->hasReturnType()) {
-            $type = $r->getReturnType()->__toString();
-            if (class_exists($type)) {
-                $this->schema = SchemaHelper::build($type);
-            } else {
+        if (PHP_VERSION_ID > 70000) {
+            if ($r->hasReturnType()) {
+                $type = $r->getReturnType()->__toString();
+                if (class_exists($type)) {
+                    $this->schema = SchemaHelper::build($type);
+                } else {
 //                $this->type = TypeHelper::determine($type);
+                }
             }
         }
 ////        \Core\Util\Debug::dump($r->getReturnType());
