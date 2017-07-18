@@ -93,7 +93,7 @@ class Operations extends DataIterator implements \JsonSerializable
         $operations = [];
         
         foreach ($this->data as $operation) {
-            $operations = array_merge($operations, $operation->jsonSerialize());
+            $operations = array_merge_recursive($operations, $operation->jsonSerialize());
         }
         ksort($operations);
         
