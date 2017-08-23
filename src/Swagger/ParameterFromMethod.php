@@ -24,8 +24,9 @@ class ParameterFromMethod extends Parameter
     public function __construct(\ReflectionMethod $r, \ReflectionParameter $param, RouteInterface $route)
     {
         $this->name     = $param->getName();
-        $this->required = !$param->isOptional();
+        $this->required = $param->isOptional() || !$param->isDefaultValueAvailable();
         $this->default  = $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null;
+        
         if ($param->getClass() !== null) {
             $class = $param->getClass();
             
