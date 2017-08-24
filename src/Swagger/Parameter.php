@@ -338,6 +338,7 @@ class Parameter implements \JsonSerializable
             }
         }
         if ($this->isTypeArray()) {
+            $param["collectionFormat"] = "brackets";
             $param["items"] = [
                 "type" => "string", // TODO determine type
             ];
