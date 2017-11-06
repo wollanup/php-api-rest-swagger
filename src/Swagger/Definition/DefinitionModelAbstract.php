@@ -8,6 +8,7 @@
 
 namespace Wollanup\Api\Swagger\Definition;
 
+use Propel\Runtime\Map\ColumnMap;
 use Propel\Runtime\Map\TableMap;
 use Wollanup\Api\Swagger\Definition;
 use Wollanup\Api\Swagger\Parameter;
@@ -17,13 +18,14 @@ use Wollanup\Api\Swagger\Parameter;
  *
  * @package Wollanup\Api\Swagger
  */
-abstract class DefinitionModelAbstract extends Definition implements \JsonSerializable
+abstract class DefinitionModelAbstract
+    extends Definition
+    implements \JsonSerializable
 {
-    
+
     protected $modelProperties;
     protected $type = 'object';
-    
-    
+
     /**
      * @param TableMap $tableMap
      */
@@ -32,8 +34,14 @@ abstract class DefinitionModelAbstract extends Definition implements \JsonSerial
         foreach ($this->modelProperties as $property) {
             $columnMap = $tableMap->getColumnByPhpName($property);
             $param     = new Parameter();
+
+            if ($this->hookBuildBefore($columnMap, $param) === false) {
+                continue;
+            };
+
             if ($columnMap->isForeignKey()) {
-                $param->setDescription("Related " . $columnMap->getRelation()->getForeignTable()->getPhpName() . "ID");
+                $param->setDescription("Related " . $columnMap->getRelation()
+                        ->getForeignTable()->getPhpName() . "ID");
             } else {
                 $param->setDescription("{$property} field");
             }
@@ -50,16 +58,20 @@ abstract class DefinitionModelAbstract extends Definition implements \JsonSerial
                     $param->setEnum($columnMap->getValueSet());
                 }
             }
-            
+
             # Enum
             if ($columnMap->getValueSet()) {
                 $param->setEnum($columnMap->getValueSet());
             }
-    
+
+            if ($this->hookBuildAfter($columnMap, $param) === false) {
+                continue;
+            };
+
             $this->properties[lcfirst($property)] = $param;
         }
     }
-    
+
     /**
      * @param $propelType
      *
@@ -89,7 +101,7 @@ abstract class DefinitionModelAbstract extends Definition implements \JsonSerial
                 return $propelType;
         }
     }
-    
+
     /**
      * @return array
      */
@@ -101,5 +113,23 @@ abstract class DefinitionModelAbstract extends Definition implements \JsonSerial
                 "properties" => $this->properties,
             ],
         ];
+    }
+
+    /**
+     * @param ColumnMap $columnMap
+     * @param Parameter $param
+     */
+    protected function hookBuildAfter(ColumnMap $columnMap, Parameter $param)
+    {
+
+    }
+
+    /**
+     * @param ColumnMap $columnMap
+     * @param Parameter $param
+     */
+    protected function hookBuildBefore(ColumnMap $columnMap, Parameter $param)
+    {
+
     }
 }

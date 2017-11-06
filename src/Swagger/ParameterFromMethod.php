@@ -13,7 +13,7 @@ use Wollanup\Api\Swagger\Definition\DefinitionModelAdd;
  */
 class ParameterFromMethod extends Parameter
 {
-    
+
     /**
      * Parameter constructor.
      *
@@ -21,15 +21,20 @@ class ParameterFromMethod extends Parameter
      * @param \ReflectionParameter $param
      * @param RouteInterface       $route
      */
-    public function __construct(\ReflectionMethod $r, \ReflectionParameter $param, RouteInterface $route)
-    {
+    public function __construct(
+        \ReflectionMethod $r,
+        \ReflectionParameter $param,
+        RouteInterface $route
+    ) {
         $this->name     = $param->getName();
-        $this->required = $param->isOptional() || !$param->isDefaultValueAvailable();
-        $this->default  = $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null;
-        
+        $this->required = ($param->isOptional()
+                || $param->isDefaultValueAvailable()) === false;
+        $this->default  = $param->isDefaultValueAvailable()
+            ? $param->getDefaultValue() : null;
+
         if ($param->getClass() !== null) {
             $class = $param->getClass();
-            
+
             // TODO test make collection
             if ($class->implementsInterface(UploadedFileInterface::class)) {
                 $this->fileUpload = true;
@@ -51,7 +56,8 @@ class ParameterFromMethod extends Parameter
         } elseif (PHP_VERSION_ID > 70000) {
             $reflectionType = $param->getType();
             if ($reflectionType) {
-                $this->type = TypeHelper::determine($param->getType()->__toString());
+                $this->type = TypeHelper::determine($param->getType()
+                    ->__toString());
             }
         }
     }

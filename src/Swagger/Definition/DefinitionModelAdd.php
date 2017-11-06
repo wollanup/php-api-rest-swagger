@@ -3,7 +3,8 @@
 namespace Wollanup\Api\Swagger\Definition;
 
 use Eukles\Entity\EntityRequestInterface;
-use Propel\Runtime\Map\TableMap;
+use Propel\Runtime\Map\ColumnMap;
+use Wollanup\Api\Swagger\Parameter;
 
 /**
  * Class DefinitionModel
@@ -12,10 +13,10 @@ use Propel\Runtime\Map\TableMap;
  */
 class DefinitionModelAdd extends DefinitionModelAbstract
 {
-    
+
     const  SUFFIX = 'Add';
     protected $modelRequiredProperties;
-    
+
     /**
      * DefinitionModel constructor.
      *
@@ -23,18 +24,17 @@ class DefinitionModelAdd extends DefinitionModelAbstract
      */
     public function __construct(EntityRequestInterface $entityRequest)
     {
-        $this->modelProperties         = $entityRequest->getWritableProperties();
-        $this->modelRequiredProperties = $entityRequest->getRequiredWritableProperties();
-        $this->name                    = get_class($entityRequest) . self::SUFFIX;
+        $this->modelProperties = $entityRequest->getWritableProperties();
+        $this->modelRequiredProperties
+                               = $entityRequest->getRequiredWritableProperties();
+        $this->name            = str_replace('\\', '/',
+            get_class($entityRequest) . self::SUFFIX);
         $this->buildProperties($entityRequest->getTableMap());
     }
-    
-    public function buildProperties(TableMap $tableMap)
+
+    protected function hookBuildAfter(ColumnMap $columnMap, Parameter $param)
     {
-        parent::buildProperties($tableMap);
-        
-        foreach ($this->properties as $name => $param) {
-            $param->setRequired(in_array(ucfirst($name), $this->modelRequiredProperties));
-        }
+        $param->setRequired(in_array(ucfirst($columnMap->getName()),
+            $this->modelRequiredProperties));
     }
 }

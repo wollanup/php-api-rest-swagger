@@ -9,6 +9,8 @@ use Eukles\Service\Router\RouterInterface;
 use Eukles\Util\DataIterator;
 use Wollanup\Api\Swagger\Definition\DefinitionModelAdd;
 use Wollanup\Api\Swagger\Definition\DefinitionModelRead;
+use Wollanup\Api\Swagger\Definition\DefinitionModelSend;
+use Wollanup\Api\Swagger\Definition\Propel\PropelModelPager;
 
 /**
  * Class Parameters
@@ -18,7 +20,7 @@ use Wollanup\Api\Swagger\Definition\DefinitionModelRead;
  */
 class Definitions extends DataIterator implements \JsonSerializable
 {
-    
+
     /**
      * @var ContainerInterface
      */
@@ -27,7 +29,7 @@ class Definitions extends DataIterator implements \JsonSerializable
      * @var Definition[]
      */
     protected $pool = [];
-    
+
     /**
      * Definitions constructor.
      *
@@ -37,7 +39,7 @@ class Definitions extends DataIterator implements \JsonSerializable
     {
         $this->container = $container;
     }
-    
+
     /**
      * Definitions constructor.
      *
@@ -47,16 +49,18 @@ class Definitions extends DataIterator implements \JsonSerializable
      */
     public function buildAll(RouterInterface $router = null)
     {
+        $this->buildExtra();
+
         foreach ($router->getRoutesMap() as $routeMap) {
             /** @var RouteInterface $route */
             foreach ($routeMap as $route) {
                 $this->buildDefinition($route);
             }
         }
-        
+
         return $this;
     }
-    
+
     /**
      * @param RouteInterface $route
      */
@@ -68,16 +72,33 @@ class Definitions extends DataIterator implements \JsonSerializable
                 $this->pool[$className] = true;
                 /** @var EntityRequestInterface $requestInstance */
                 $requestInstance = new $className($this->container);
-    
-                $model                         = new DefinitionModelRead($requestInstance);
-                $this->data[$model->getName()] = $model;
-                
-                $modelAdd                         = new DefinitionModelAdd($requestInstance);
-                $this->data[$modelAdd->getName()] = $modelAdd;
+
+                $model                                                 = new DefinitionModelRead($requestInstance);
+                $this->data[str_replace('\\', '/', $model->getName())] = $model;
+
+                $modelAdd = new DefinitionModelAdd($requestInstance);
+                $this->data[str_replace('\\', '/', $modelAdd->getName())]
+                          = $modelAdd;
+
+                $modelSend = new DefinitionModelSend($requestInstance);
+                $this->data[str_replace('\\', '/', $modelSend->getName())]
+                           = $modelSend;
             }
         }
     }
-    
+
+    public function buildExtra()
+    {
+        $pager = new PropelModelPager();
+        // TODO Add properties
+        $this->data[$pager->getName()] = $pager;
+
+//        $coll = new Definition();
+//        $coll->setName(str_replace('\\', '/', ObjectCollection::class));
+//        // TODO Add properties
+//        $this->data[$coll->getName()] = $coll;
+    }
+
     /**
      *
      * @param RouteInterface $route
@@ -87,9 +108,10 @@ class Definitions extends DataIterator implements \JsonSerializable
      */
     public function getDefinition($route, $suffix = '')
     {
-        return $this->data[$route->getRequestClass() . $suffix];
+        return $this->data[str_replace('\\', '/',
+            $route->getRequestClass() . $suffix)];
     }
-    
+
     /**
      * @param RouteInterface $route
      *
@@ -99,7 +121,7 @@ class Definitions extends DataIterator implements \JsonSerializable
     {
         return isset($this->pool[$route->getRequestClass()]);
     }
-    
+
     /**
      * Specify data which should be serialized to JSON
      *
@@ -111,10 +133,11 @@ class Definitions extends DataIterator implements \JsonSerializable
     function jsonSerialize()
     {
         $return = [];
+
         foreach ($this->data as $definition) {
             $return = array_merge($return, $definition->jsonSerialize());
         }
-        
+
         return $return;
     }
 }

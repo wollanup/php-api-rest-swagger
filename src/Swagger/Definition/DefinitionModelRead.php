@@ -17,7 +17,7 @@ use Eukles\Entity\EntityRequestInterface;
  */
 class DefinitionModelRead extends DefinitionModelAbstract
 {
-    
+
     /**
      * DefinitionModel constructor.
      *
@@ -26,7 +26,8 @@ class DefinitionModelRead extends DefinitionModelAbstract
     public function __construct(EntityRequestInterface $entityRequest)
     {
         $this->modelProperties = $entityRequest->getExposedProperties();
-        $this->name            = get_class($entityRequest);
+        $this->name            = str_replace('\\', '/',
+            get_class($entityRequest));
         $this->buildProperties($entityRequest->getTableMap());
     }
 }

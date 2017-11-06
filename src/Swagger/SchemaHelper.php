@@ -9,7 +9,7 @@ namespace Wollanup\Api\Swagger;
  */
 class SchemaHelper
 {
-    
+
     /**
      * @param $className
      *
@@ -17,6 +17,8 @@ class SchemaHelper
      */
     public static function build($className)
     {
-        return ['$ref' => '#/definitions/' . $className];
+        return [
+            '$ref' => '#/definitions/' . str_replace('\\', '/', $className),
+        ];
     }
 }

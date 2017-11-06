@@ -2,40 +2,42 @@
 
 namespace Wollanup\Api\Swagger;
 
+use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
+use Wollanup\Api\Swagger\Definition\DefinitionModelSend;
+
 class Responses implements \JsonSerializable
 {
-    
+
+    /**
+     * @var string
+     */
+    protected $contentType = 'application/json';
     /**
      * @var array|null
      */
-    protected $schema;
-    
+    protected $schema = ['type' => 'object'];
+
     public function __construct(\ReflectionMethod $r)
     {
         if (PHP_VERSION_ID > 70000) {
             if ($r->hasReturnType()) {
                 $type = $r->getReturnType()->__toString();
                 if (class_exists($type)) {
-                    $this->schema = SchemaHelper::build($type);
+                    $rc = new \ReflectionClass($r->getReturnType()
+                        ->__toString());
+                    if ($rc->implementsInterface(ActiveRecordInterface::class)) {
+                        $this->schema = SchemaHelper::build($type
+                            . DefinitionModelSend::SUFFIX);
+                    } else {
+                        $this->schema = SchemaHelper::build($type);
+                    }
                 } else {
-//                $this->type = TypeHelper::determine($type);
+                    $this->schema['type'] = TypeHelper::determine($type);
                 }
             }
         }
-////        \Core\Util\Debug::dump($r->getReturnType());
-//        $comment = $r->getDocComment();
-//        if (!$comment) {
-//            return;
-//        }
-//
-//        $factory = DocBlockFactory::createInstance();
-//        if ($r) {
-//            $docBlock = $factory->create($r);
-//            $return   = $docBlock->getTagsByName('return');
-////            \Core\Util\Debug::dump($return);
-//        }
     }
-    
+
     /**
      * Specify data which should be serialized to JSON
      *
@@ -48,13 +50,24 @@ class Responses implements \JsonSerializable
     {
         $responses = [
             "default" => [
-                "description" => "response",
+                "description" => "OK",
+                /**
+                 * content => application/json is for V3, we use V2
+                 */
+//                "content"     => [
+//                    $this->contentType => [
+                'schema'      => $this->schema
+//                    ],
+//                ],
             ],
+//            '4XX' => [
+//                "description" => "Error",
+//            ],
+//            '5XX' => [
+//                "description" => "Unexpected error",
+//            ],
         ];
-        if ($this->schema) {
-            $responses['default']['schema'] = $this->schema;
-        }
-        
+
         return $responses;
     }
 }
