@@ -17,8 +17,6 @@ class SchemaHelper
      */
     public static function build($className)
     {
-        return [
-            '$ref' => '#/definitions/' . str_replace('\\', '/', $className),
-        ];
+        return ['$ref' => '#/definitions/' . str_replace('\\', '/', $className)];
     }
 }
