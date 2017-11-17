@@ -26,7 +26,7 @@ use Wollanup\Api\Swagger\Parameter\Sort\SortProperty;
  */
 class Parameters extends DataIterator implements \JsonSerializable
 {
-    
+
     /**
      * @var bool
      */
@@ -35,7 +35,7 @@ class Parameters extends DataIterator implements \JsonSerializable
      * @var array
      */
     protected $pathParameters = [];
-    
+
     /**
      * Parameters constructor.
      *
@@ -51,14 +51,14 @@ class Parameters extends DataIterator implements \JsonSerializable
         Definitions $definitions
     ) {
         $this->buildPathParameters($routePattern);
-        
+
         # Params Descriptions (built here because we only have an array of @param)
         $paramsDocBlock = [];
         if ($r->getDocComment()) {
             $docBlock       = DocBlockFactory::createInstance()->create($r->getDocComment());
             $paramsDocBlock = $docBlock->getTagsByName('param');
         }
-        
+
         # Build parameters
         foreach ($r->getParameters() as $param) {
             $class = $param->getClass();
@@ -67,11 +67,13 @@ class Parameters extends DataIterator implements \JsonSerializable
                 continue;
             }
             // When param is a fetched resource instance, just skip it
-            if ($class && $class->implementsInterface(ActiveRecordInterface::class) && $route->isMakeInstanceFetch()) {
+            if ($class && $class->implementsInterface(ActiveRecordInterface::class)
+                && $route->isFetchEntity()
+            ) {
                 continue;
             }
             if ($class) {
-                
+
                 if ($class->implementsInterface(QueryModifierInterface::class)) {
                     $this->data[] = new SortProperty;
                     $this->data[] = new SortDirection;
@@ -86,8 +88,8 @@ class Parameters extends DataIterator implements \JsonSerializable
                     continue;
                 }
             }
-            $parameter = new ParameterFromMethod($r, $param, $route, $definitions);
-    
+            $parameter = new ParameterFromMethod($r, $param, $route);
+
             # Description
             /**
              * @var int   $index
@@ -100,23 +102,23 @@ class Parameters extends DataIterator implements \JsonSerializable
                     break;
                 }
             }
-    
+
             # File Upload
             if ($parameter->isFileUpload()) {
                 $this->fileUpload = true;
             }
-    
+
             # Add parameter
             $this->data[] = $parameter;
         }
-        if ($this->fileUpload && $route->isMakeInstanceCreate()) {
+        if ($this->fileUpload && $route->isCreateEntity()) {
             foreach ($this->data as $key => $parameter) {
                 $parameter->setIn('formData');
                 if ($parameter->getSchema()) {
-                    
+
                     # Removes parameter and replace by list of properties of schema
                     unset($this->data[$key]);
-                    
+
                     if (!$definitions->hasDefinition($route)) {
                         $definitions->buildDefinition($route);
                     }
@@ -129,7 +131,7 @@ class Parameters extends DataIterator implements \JsonSerializable
             }
         }
     }
-    
+
     /**
      * @param array $routePattern
      */
@@ -147,7 +149,7 @@ class Parameters extends DataIterator implements \JsonSerializable
             }
         }
     }
-    
+
     /**
      * @return bool
      */
@@ -155,7 +157,7 @@ class Parameters extends DataIterator implements \JsonSerializable
     {
         return $this->fileUpload;
     }
-    
+
     /**
      * Specify data which should be serialized to JSON
      *
@@ -170,7 +172,7 @@ class Parameters extends DataIterator implements \JsonSerializable
         foreach ($this->data as $parameter) {
             $return[] = $parameter->jsonSerialize();
         }
-        
+
         return $return;
     }
 }
