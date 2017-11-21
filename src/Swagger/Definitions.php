@@ -3,6 +3,7 @@
 namespace Wollanup\Api\Swagger;
 
 use Eukles\Container\ContainerInterface;
+use Eukles\Entity\EntityFactoryConfig;
 use Eukles\Entity\EntityRequestInterface;
 use Eukles\Service\Router\RouteInterface;
 use Eukles\Service\Router\RouterInterface;
@@ -66,21 +67,29 @@ class Definitions extends DataIterator implements \JsonSerializable
      */
     public function buildDefinition(RouteInterface $route)
     {
-        if ($route->isMakeInstance()) {
-            $className = $route->getRequestClass();
+        /** @var EntityRequestInterface[] $classes */
+        $classes = [];
+        if ($route->hasEntities()) {
+            /** @var EntityFactoryConfig $config */
+            foreach ($route->getEntities() as $config) {
+                $classes[] = $config->getEntityRequest();
+            }
+        }
+        /** @var EntityRequestInterface $class */
+        foreach ($classes as $class) {
+            $className = get_class($class);
             if (!isset($this->pool[$className])) {
                 $this->pool[$className] = true;
-                /** @var EntityRequestInterface $requestInstance */
-                $requestInstance = new $className($this->container);
 
-                $model                                                 = new DefinitionModelRead($requestInstance);
+                $model = new DefinitionModelRead($class);
+
                 $this->data[str_replace('\\', '/', $model->getName())] = $model;
 
-                $modelAdd = new DefinitionModelAdd($requestInstance);
+                $modelAdd = new DefinitionModelAdd($class);
                 $this->data[str_replace('\\', '/', $modelAdd->getName())]
                           = $modelAdd;
 
-                $modelSend = new DefinitionModelSend($requestInstance);
+                $modelSend = new DefinitionModelSend($class);
                 $this->data[str_replace('\\', '/', $modelSend->getName())]
                            = $modelSend;
             }

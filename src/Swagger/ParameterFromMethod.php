@@ -42,13 +42,14 @@ class ParameterFromMethod extends Parameter
                     ->setType('file')
                     ->setDescription('File upload');
             } else {
-                if ($route->isMakeInstance()) {
+                if ($route->hasEntity($param->getName())) {
+                    $config = $route->getEntityConfig($param->getName());
                     $this->setIn(self::IN_BODY);
                     $suffix = "";
-                    if ($route->isMakeInstanceCreate()) {
+                    if ($config->isTypeCreate()) {
                         $suffix = DefinitionModelAdd::SUFFIX;
                     }
-                    $this->setSchema($route->getRequestClass() . $suffix);
+                    $this->setSchema(get_class($config->getEntityRequest()) . $suffix);
                     $shortName = substr(strrchr($this->schema, '\\'), 1);
                     $this->setDescription("{$shortName} object");
                 }

@@ -50,6 +50,7 @@ class Parameters extends DataIterator implements \JsonSerializable
         array $routePattern,
         Definitions $definitions
     ) {
+
         $this->buildPathParameters($routePattern);
 
         # Params Descriptions (built here because we only have an array of @param)
@@ -62,18 +63,24 @@ class Parameters extends DataIterator implements \JsonSerializable
         # Build parameters
         foreach ($r->getParameters() as $param) {
             $class = $param->getClass();
-            // When param is already present in path, just skip it
+
+            # When param is already present in path, just skip it
             if (in_array($param->getName(), $this->pathParameters)) {
                 continue;
             }
-            // When param is a fetched resource instance, just skip it
-            if ($class && $class->implementsInterface(ActiveRecordInterface::class)
-                && $route->isFetchEntity()
-            ) {
-                continue;
-            }
-            if ($class) {
 
+            # When param is a fetched resource instance, just skip it
+            if ($class && $class->implementsInterface(ActiveRecordInterface::class)) {
+                # If parameter is a populated entity, skip here, we'll get it later in method param
+                if ($route->hasEntity($param->getName())) {
+                    $config = $route->getEntityConfig($param->getName());
+                    if (!$config->isHydrateEntityFromRequest()) {
+                        continue;
+                    }
+                }
+            }
+
+            if ($class) {
                 if ($class->implementsInterface(QueryModifierInterface::class)) {
                     $this->data[] = new SortProperty;
                     $this->data[] = new SortDirection;
@@ -88,6 +95,7 @@ class Parameters extends DataIterator implements \JsonSerializable
                     continue;
                 }
             }
+
             $parameter = new ParameterFromMethod($r, $param, $route);
 
             # Description
@@ -111,7 +119,7 @@ class Parameters extends DataIterator implements \JsonSerializable
             # Add parameter
             $this->data[] = $parameter;
         }
-        if ($this->fileUpload && $route->isCreateEntity()) {
+        if ($this->fileUpload) {
             foreach ($this->data as $key => $parameter) {
                 $parameter->setIn('formData');
                 if ($parameter->getSchema()) {
@@ -137,6 +145,7 @@ class Parameters extends DataIterator implements \JsonSerializable
      */
     public function buildPathParameters(array $routePattern)
     {
+
         foreach ($routePattern as $segment) {
             if (is_array($segment)) {
                 $typeRegExp = "#({$segment[1]})#";
