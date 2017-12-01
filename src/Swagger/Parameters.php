@@ -10,13 +10,11 @@ use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Wollanup\Api\Swagger\Definition\DefinitionModelAdd;
-use Wollanup\Api\Swagger\Parameter\Filter\FilterOperator;
-use Wollanup\Api\Swagger\Parameter\Filter\FilterProperty;
-use Wollanup\Api\Swagger\Parameter\Filter\FilterValue;
+use Wollanup\Api\Swagger\Parameter\EasySorter;
+use Wollanup\Api\Swagger\Parameter\Fields;
+use Wollanup\Api\Swagger\Parameter\Filter;
 use Wollanup\Api\Swagger\Parameter\Pagination\PaginationLimit;
 use Wollanup\Api\Swagger\Parameter\Pagination\PaginationPage;
-use Wollanup\Api\Swagger\Parameter\Sort\SortDirection;
-use Wollanup\Api\Swagger\Parameter\Sort\SortProperty;
 
 /**
  * Class Parameters
@@ -82,11 +80,14 @@ class Parameters extends DataIterator implements \JsonSerializable
 
             if ($class) {
                 if ($class->implementsInterface(QueryModifierInterface::class)) {
-                    $this->data[] = new SortProperty;
-                    $this->data[] = new SortDirection;
-                    $this->data[] = new FilterProperty();
-                    $this->data[] = new FilterOperator();
-                    $this->data[] = new FilterValue();
+                    $this->data[] = new EasySorter();
+                    $this->data[] = new Fields();
+//                    $this->data[] = new Filter();
+//                    $this->data[] = new SortProperty;
+//                    $this->data[] = new SortDirection;
+                    $this->data[] = new Filter\FilterProperty();
+                    $this->data[] = new Filter\FilterOperator();
+                    $this->data[] = new Filter\FilterValue();
                     continue;
                 }
                 if ($class->implementsInterface(PaginationInterface::class)) {
