@@ -72,7 +72,7 @@ class Definitions extends DataIterator implements \JsonSerializable
         if ($route->hasEntities()) {
             /** @var EntityFactoryConfig $config */
             foreach ($route->getEntities() as $config) {
-                $classes[] = $config->getEntityRequest();
+                $classes[] = $config->createEntityRequest($this->container);
             }
         }
         /** @var EntityRequestInterface $class */

@@ -49,7 +49,7 @@ class ParameterFromMethod extends Parameter
                     if ($config->isTypeCreate()) {
                         $suffix = DefinitionModelAdd::SUFFIX;
                     }
-                    $this->setSchema(get_class($config->getEntityRequest()) . $suffix);
+                    $this->setSchema($config->getEntityRequest() . $suffix);
                     $shortName = substr(strrchr($this->schema, '\\'), 1);
                     $this->setDescription("{$shortName} object");
                 }
