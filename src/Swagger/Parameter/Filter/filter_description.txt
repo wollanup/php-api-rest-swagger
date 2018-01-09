@@ -1,0 +1,19 @@
+    protected $description
+        = "Filter results." . PHP_EOL . PHP_EOL .
+        'Comma separated list of properties' . PHP_EOL . PHP_EOL .
+        '```' . PHP_EOL .
+        'fields=name,id' . PHP_EOL .
+        '```' . PHP_EOL . PHP_EOL .
+        'will output:' . PHP_EOL . PHP_EOL .
+        '```json' . PHP_EOL  .
+        '[{"name":"first","id":1},{"name":"second","id":2}]' . PHP_EOL . PHP_EOL .
+        '```' . PHP_EOL . PHP_EOL .
+        'If only one field is asked, return will be an array of values instead of object' . PHP_EOL . PHP_EOL .
+        '```' . PHP_EOL .
+        'fields=name' . PHP_EOL .
+        '```' . PHP_EOL . PHP_EOL .
+        'will output:' . PHP_EOL . PHP_EOL .
+        '```json' . PHP_EOL  .
+        '["first","second"]' . PHP_EOL . PHP_EOL .
+        '```' . PHP_EOL . PHP_EOL
+    ;

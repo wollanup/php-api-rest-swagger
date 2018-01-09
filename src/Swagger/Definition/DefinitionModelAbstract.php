@@ -40,8 +40,14 @@ abstract class DefinitionModelAbstract
             };
 
             if ($columnMap->isForeignKey()) {
-                $param->setDescription("Related " . $columnMap->getRelation()
-                        ->getForeignTable()->getPhpName() . "ID");
+                # Use try because "$columnMap->getRelation()" can fail with some polymorphic relations
+                try {
+                    $param->setDescription(
+                        "Foreign key to " . $columnMap->getRelation()->getForeignTable()->getPhpName() . "ID"
+                    );
+                } catch (\Throwable $e) {
+                    $param->setDescription("Foreign key");
+                }
             } else {
                 $param->setDescription("{$property} field");
             }

@@ -12,7 +12,7 @@ use phpDocumentor\Reflection\DocBlockFactory;
  */
 class Operation implements \JsonSerializable
 {
-    
+
     /**
      * @var array
      */
@@ -65,7 +65,7 @@ class Operation implements \JsonSerializable
      * @var string
      */
     protected $verb = "get";
-    
+
     /**
      * Operation constructor.
      *
@@ -75,30 +75,33 @@ class Operation implements \JsonSerializable
      */
     public function __construct(RouteInterface $route, array $routePattern, Definitions $definitions)
     {
-        
+
         $this->routePattern = $routePattern;
         $this->deprecated   = $route->isDeprecated();
         $this->path         = $this->buildSwaggerStyleRoutePattern($routePattern);
         $this->verb         = strtolower($route->getVerb());
         $this->operationId  = $route->getCallable() . ":" . $route->getIdentifier() . ":" . $this->path;
-        
+
         $class  = $route->getActionClass();
         $rClass = new \ReflectionClass($class);
-        
+
         $method  = $route->getActionMethod();
+        if ($rClass->hasMethod($method) === false) {
+            throw new \BadMethodCallException("Method {$method} Not Found in class {$rClass->getName()}");
+        }
         $rMethod = $rClass->getMethod($method);
-        
+
         $this->buildCommentData($rMethod);
-    
+
         $this->parameters = new Parameters($rMethod, $route, $this->routePattern, $definitions);
-        
+
         if ($this->parameters->hasFileUpload()) {
             $this->consumes = ['multipart/form-data'];
         }
-        
+
         $this->responses = new Responses($rMethod, $route, $this->routePattern);
     }
-    
+
     /**
      * @param \ReflectionMethod $r
      */
@@ -117,7 +120,7 @@ class Operation implements \JsonSerializable
         $this->summary     = $docBlock->getSummary();
         $this->description = $docBlock->getDescription()->render();
     }
-    
+
     /**
      * Transform pattern to be swagger compatible (removes placeholder types, optional parts)
      *
@@ -133,10 +136,10 @@ class Operation implements \JsonSerializable
             # String : Simple path segment
             $path .= is_array($segment) ? ('{' . $segment[0] . '}') : $segment;
         }
-        
+
         return $path;
     }
-    
+
     /**
      * @return array
      */
@@ -144,7 +147,7 @@ class Operation implements \JsonSerializable
     {
         return $this->consumes;
     }
-    
+
     /**
      * @return mixed
      */
@@ -152,7 +155,7 @@ class Operation implements \JsonSerializable
     {
         return $this->description;
     }
-    
+
     /**
      * @return mixed
      */
@@ -160,7 +163,7 @@ class Operation implements \JsonSerializable
     {
         return $this->operationId;
     }
-    
+
     /**
      * @return Parameters
      */
@@ -168,7 +171,7 @@ class Operation implements \JsonSerializable
     {
         return $this->parameters;
     }
-    
+
     /**
      * @return string
      */
@@ -176,7 +179,7 @@ class Operation implements \JsonSerializable
     {
         return $this->path;
     }
-    
+
     /**
      * @return array
      */
@@ -184,7 +187,7 @@ class Operation implements \JsonSerializable
     {
         return $this->produces;
     }
-    
+
     /**
      * @return mixed
      */
@@ -192,7 +195,7 @@ class Operation implements \JsonSerializable
     {
         return $this->responses;
     }
-    
+
     /**
      * @return array
      */
@@ -200,7 +203,7 @@ class Operation implements \JsonSerializable
     {
         return $this->routePattern;
     }
-    
+
     /**
      * @return string
      */
@@ -208,7 +211,7 @@ class Operation implements \JsonSerializable
     {
         return $this->summary;
     }
-    
+
     /**
      * @return array
      */
@@ -216,7 +219,7 @@ class Operation implements \JsonSerializable
     {
         return $this->tags;
     }
-    
+
     /**
      * @param array $tags
      *
@@ -225,10 +228,10 @@ class Operation implements \JsonSerializable
     public function setTags(array $tags)/*: Operation*/
     {
         $this->tags = $tags;
-        
+
         return $this;
     }
-    
+
     /**
      * @return string
      */
@@ -236,7 +239,7 @@ class Operation implements \JsonSerializable
     {
         return $this->verb;
     }
-    
+
     /**
      * @return bool
      */
@@ -244,7 +247,7 @@ class Operation implements \JsonSerializable
     {
         return $this->deprecated;
     }
-    
+
     /**
      * @return bool
      */
@@ -252,7 +255,7 @@ class Operation implements \JsonSerializable
     {
         return $this->internal;
     }
-    
+
     /**
      * Specify data which should be serialized to JSON
      *
