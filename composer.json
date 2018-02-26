@@ -24,8 +24,11 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^6.0",
-    "wollanup/php-api-rest": "dev-master",
+    "wollanup/php-api-rest": "3.0",
     "propel/propel": "~2.0@dev",
     "slim/slim": "^3.8"
+  },
+  "conflict": {
+    "wollanup/php-api-rest": "<3.0"
   }
 }
