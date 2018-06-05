@@ -9,7 +9,7 @@ namespace Wollanup\Api\Swagger;
  */
 class Parameter implements \JsonSerializable
 {
-    
+
     const IN_FORM_DATA = 'formData';
     const IN_QUERY = 'query';
     const IN_PATH = 'path';
@@ -75,7 +75,7 @@ class Parameter implements \JsonSerializable
      * @var null
      */
     protected $type = "string";
-    
+
     /**
      * Parameter constructor.
      *
@@ -83,7 +83,7 @@ class Parameter implements \JsonSerializable
     public function __construct()
     {
     }
-    
+
     /**
      * @return mixed
      */
@@ -91,7 +91,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->default;
     }
-    
+
     /**
      * @param mixed $default
      *
@@ -100,7 +100,7 @@ class Parameter implements \JsonSerializable
     public function setDefault($default)
     {
         $this->default = $default;
-        
+
         return $this;
     }
 
@@ -111,7 +111,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->description;
     }
-    
+
     /**
      * @param string $description
      *
@@ -122,10 +122,10 @@ class Parameter implements \JsonSerializable
     )/*: Parameter*/
     {
         $this->description = $description;
-        
+
         return $this;
     }
-    
+
     /**
      * @return array|null
      */
@@ -133,7 +133,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->enum;
     }
-    
+
     /**
      * @param array|null $enum
      *
@@ -142,10 +142,10 @@ class Parameter implements \JsonSerializable
     public function setEnum(array $enum)
     {
         $this->enum = $enum;
-        
+
         return $this;
     }
-    
+
     /**
      * @return string
      */
@@ -153,7 +153,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->format;
     }
-    
+
     /**
      * @param string $format
      *
@@ -162,10 +162,10 @@ class Parameter implements \JsonSerializable
     public function setFormat($format)
     {
         $this->format = $format;
-        
+
         return $this;
     }
-    
+
     /**
      * @return string
      */
@@ -173,7 +173,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->in;
     }
-    
+
     /**
      * @param string $in
      *
@@ -184,10 +184,10 @@ class Parameter implements \JsonSerializable
     )/*: Parameter*/
     {
         $this->in = $in;
-        
+
         return $this;
     }
-    
+
     /**
      * @return array|null
      */
@@ -195,7 +195,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->items;
     }
-    
+
     /**
      * @param array|null $items
      *
@@ -204,10 +204,10 @@ class Parameter implements \JsonSerializable
     public function setItems(array $items)
     {
         $this->items = $items;
-        
+
         return $this;
     }
-    
+
     /**
      * @return string
      */
@@ -215,7 +215,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->name;
     }
-    
+
     /**
      * @param string $name
      *
@@ -226,10 +226,10 @@ class Parameter implements \JsonSerializable
     )/*: Parameter*/
     {
         $this->name = $name;
-        
+
         return $this;
     }
-    
+
     /**
      * @return null
      */
@@ -237,7 +237,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->schema;
     }
-    
+
     /**
      * @param null $schema
      *
@@ -246,10 +246,10 @@ class Parameter implements \JsonSerializable
     public function setSchema($schema)
     {
         $this->schema = $schema;
-        
+
         return $this;
     }
-    
+
     /**
      * @return null
      */
@@ -257,7 +257,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->type;
     }
-    
+
     /**
      * @param null $type
      *
@@ -266,10 +266,10 @@ class Parameter implements \JsonSerializable
     public function setType($type)
     {
         $this->type = $type;
-        
+
         return $this;
     }
-    
+
     /**
      * @return mixed
      */
@@ -277,7 +277,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->default !== null;
     }
-    
+
     /**
      * @return bool
      */
@@ -285,7 +285,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->fileUpload;
     }
-    
+
     /**
      * @return bool
      */
@@ -293,7 +293,7 @@ class Parameter implements \JsonSerializable
     {
         return $this->required;
     }
-    
+
     /**
      * @param bool $required
      *
@@ -304,15 +304,26 @@ class Parameter implements \JsonSerializable
     )/*: Parameter*/
     {
         $this->required = $required;
-        
+
         return $this;
     }
-    
-    public function isTypeArray()
+
+    /**
+     * @return bool
+     */
+    public function isTypeArray(): bool
     {
         return $this->type === 'array';
     }
-    
+
+    /**
+     * @return bool
+     */
+    public function isTypeString(): bool
+    {
+        return $this->type === 'string';
+    }
+
     /**
      * Specify data which should be serialized to JSON
      *
@@ -346,7 +357,7 @@ class Parameter implements \JsonSerializable
         if ($this->getEnum()) {
             $param['enum'] = $this->getEnum();
         }
-        
+
         return $param;
     }
 }

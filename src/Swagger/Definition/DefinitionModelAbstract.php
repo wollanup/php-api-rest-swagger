@@ -53,6 +53,9 @@ abstract class DefinitionModelAbstract
             }
             $param->setName(lcfirst($property));
             $param->setType($this->convertType($columnMap->getType()));
+            if ($param->isTypeString()) {
+                $param->setFormat($this->convertFormat($columnMap->getType()));
+            }
             $param->setRequired($columnMap->isNotNull());
             if ($columnMap->getDefaultValue()) {
                 $param->setDefault($columnMap->getDefaultValue());
@@ -88,8 +91,10 @@ abstract class DefinitionModelAbstract
         switch ($propelType) {
             case "VARCHAR":
             case "LONGVARCHAR":
-            case "TIMESTAMP":
             case "OBJECT":
+            case "CHAR":
+            case "DATE":
+            case "TIMESTAMP":
                 return "string";
                 break;
             case "BOOLEAN":
@@ -97,12 +102,33 @@ abstract class DefinitionModelAbstract
                 break;
             case "TINYINT":
             case "SMALLINT":
+            case "BIGINT":
             case "INTEGER":
                 return "integer";
+                break;
+            case "BIGINT":
+                return "number";
                 break;
             case "ENUM":
                 return "array";
                 break;
+            default:
+                return $propelType;
+        }
+    }
+
+    /**
+     * @param $propelType
+     *
+     * @return string
+     */
+    public function convertFormat($propelType)
+    {
+        switch ($propelType) {
+            case "DATE":
+                return "date";
+            case "TIMESTAMP":
+                return "date-time";
             default:
                 return $propelType;
         }

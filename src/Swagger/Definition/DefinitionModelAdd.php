@@ -34,7 +34,7 @@ class DefinitionModelAdd extends DefinitionModelAbstract
 
     protected function hookBuildAfter(ColumnMap $columnMap, Parameter $param)
     {
-        $param->setRequired(in_array(ucfirst($columnMap->getName()),
+        $param->setRequired(in_array(ucfirst($columnMap->getPhpName()),
             $this->modelRequiredProperties));
     }
 }
