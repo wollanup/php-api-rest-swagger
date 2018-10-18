@@ -95,6 +95,8 @@ abstract class DefinitionModelAbstract
             case "CHAR":
             case "DATE":
             case "TIMESTAMP":
+            case "CLOB":
+            case "BLOB":
                 return "string";
                 break;
             case "BOOLEAN":
@@ -102,7 +104,6 @@ abstract class DefinitionModelAbstract
                 break;
             case "TINYINT":
             case "SMALLINT":
-            case "BIGINT":
             case "INTEGER":
                 return "integer";
                 break;
