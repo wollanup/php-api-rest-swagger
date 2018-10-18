@@ -37,4 +37,19 @@ class DefinitionModelAdd extends DefinitionModelAbstract
         $param->setRequired(in_array(ucfirst($columnMap->getPhpName()),
             $this->modelRequiredProperties));
     }
+
+    /**
+     * Skip property in definition if it's an auto increment PK
+     *
+     * @param ColumnMap $columnMap
+     * @param Parameter $param
+     * @return bool
+     */
+    protected function hookBuildBefore(ColumnMap $columnMap, Parameter $param)
+    {
+        if ($columnMap->isPrimaryKey() && $columnMap->getTable()->isUseIdGenerator()) {
+            return false;
+        }
+        return true;
+    }
 }
