@@ -8,6 +8,7 @@ use Eukles\Entity\EntityRequestInterface;
 use Eukles\Service\Router\RouteInterface;
 use Eukles\Service\Router\RouterInterface;
 use Eukles\Util\DataIterator;
+use JsonSerializable;
 use Wollanup\Api\Swagger\Definition\DefinitionModelAdd;
 use Wollanup\Api\Swagger\Definition\DefinitionModelRead;
 use Wollanup\Api\Swagger\Definition\DefinitionModelSend;
@@ -19,7 +20,7 @@ use Wollanup\Api\Swagger\Definition\Propel\PropelModelPager;
  * @property  Definition[] $data
  * @package Wollanup\Api\Swagger
  */
-class Definitions extends DataIterator implements \JsonSerializable
+class Definitions extends DataIterator implements JsonSerializable
 {
 
     /**
@@ -72,7 +73,8 @@ class Definitions extends DataIterator implements \JsonSerializable
         if ($route->hasEntities()) {
             /** @var EntityFactoryConfig $config */
             foreach ($route->getEntities() as $config) {
-                $classes[] = $config->createEntityRequest($this->container);
+                $requestEntity = $config->createEntityRequest($this->container->getRequest(), $this->container);
+                $classes[] = $requestEntity;
             }
         }
         /** @var EntityRequestInterface $class */
