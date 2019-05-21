@@ -108,6 +108,7 @@ abstract class DefinitionModelAbstract
                 return "integer";
                 break;
             case "BIGINT":
+            case "DECIMAL":
                 return "number";
                 break;
             case "ENUM":
