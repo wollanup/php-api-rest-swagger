@@ -8,8 +8,10 @@
 
 namespace Wollanup\Api\Swagger\Definition;
 
+use JsonSerializable;
 use Propel\Runtime\Map\ColumnMap;
 use Propel\Runtime\Map\TableMap;
+use Throwable;
 use Wollanup\Api\Swagger\Definition;
 use Wollanup\Api\Swagger\Parameter;
 
@@ -20,7 +22,7 @@ use Wollanup\Api\Swagger\Parameter;
  */
 abstract class DefinitionModelAbstract
     extends Definition
-    implements \JsonSerializable
+    implements JsonSerializable
 {
 
     protected $modelProperties;
@@ -45,7 +47,7 @@ abstract class DefinitionModelAbstract
                     $param->setDescription(
                         "Foreign key to " . $columnMap->getRelation()->getForeignTable()->getPhpName() . "ID"
                     );
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $param->setDescription("Foreign key");
                 }
             } else {
@@ -109,6 +111,7 @@ abstract class DefinitionModelAbstract
                 break;
             case "BIGINT":
             case "DECIMAL":
+            case "FLOAT":
                 return "number";
                 break;
             case "ENUM":
