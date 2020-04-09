@@ -12,9 +12,9 @@ use Core\Util\IO;
 use Eukles\Container\ContainerInterface;
 use Eukles\RouteMap\RouteMapInterface;
 use Eukles\Service\RoutesClasses\RoutesClassesInterface;
-use Eukles\Util\DataIterator;
 use Nette\Reflection\AnnotationsParser;
 use Wollanup\Api\Swagger\Test\RouteMap\TestRouteMap;
+use Wollanup\Api\Util\DataIterator;
 
 /**
  * Class RoutesClasses

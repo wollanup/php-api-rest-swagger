@@ -4,7 +4,8 @@ namespace Wollanup\Api\Swagger;
 
 use Eukles\RouteMap\RouteMapInterface;
 use Eukles\Service\Router\RouterInterface;
-use Eukles\Util\DataIterator;
+use JsonSerializable;
+use Wollanup\Api\Util\DataIterator;
 
 /**
  * Tags Operations
@@ -12,9 +13,9 @@ use Eukles\Util\DataIterator;
  * @property  Operation[] $data
  * @package Wollanup\Api\Swagger
  */
-class Tags extends DataIterator implements \JsonSerializable
+class Tags extends DataIterator implements JsonSerializable
 {
-    
+
     /**
      * Parameters constructor.
      *
@@ -29,7 +30,7 @@ class Tags extends DataIterator implements \JsonSerializable
             }
         }
     }
-    
+
     /**
      * @param RouteMapInterface $routeMap
      */
@@ -42,7 +43,7 @@ class Tags extends DataIterator implements \JsonSerializable
 //        NOT USED in swagger-ui 2.x : UGLY   'description' => "Operations on " . $name,
         ];
     }
-    
+
     /**
      * Specify data which should be serialized to JSON
      *
@@ -54,7 +55,7 @@ class Tags extends DataIterator implements \JsonSerializable
     function jsonSerialize()
     {
         ksort($this->data);
-        
+
         return array_values($this->data);
     }
 }

@@ -5,16 +5,18 @@ namespace Wollanup\Api\Swagger;
 use Eukles\Service\Pagination\PaginationInterface;
 use Eukles\Service\QueryModifier\QueryModifierInterface;
 use Eukles\Service\Router\RouteInterface;
-use Eukles\Util\DataIterator;
+use JsonSerializable;
 use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
+use ReflectionMethod;
 use Wollanup\Api\Swagger\Definition\DefinitionModelAdd;
 use Wollanup\Api\Swagger\Parameter\EasySorter;
 use Wollanup\Api\Swagger\Parameter\Fields;
 use Wollanup\Api\Swagger\Parameter\Filter;
 use Wollanup\Api\Swagger\Parameter\Pagination\PaginationLimit;
 use Wollanup\Api\Swagger\Parameter\Pagination\PaginationPage;
+use Wollanup\Api\Util\DataIterator;
 
 /**
  * Class Parameters
@@ -22,7 +24,7 @@ use Wollanup\Api\Swagger\Parameter\Pagination\PaginationPage;
  * @property  Parameter[] $data
  * @package Wollanup\Api\Swagger
  */
-class Parameters extends DataIterator implements \JsonSerializable
+class Parameters extends DataIterator implements JsonSerializable
 {
 
     /**
@@ -37,13 +39,13 @@ class Parameters extends DataIterator implements \JsonSerializable
     /**
      * Parameters constructor.
      *
-     * @param \ReflectionMethod $r
-     * @param RouteInterface    $route
-     * @param array             $routePattern
-     * @param Definitions       $definitions
+     * @param ReflectionMethod $r
+     * @param RouteInterface $route
+     * @param array $routePattern
+     * @param Definitions $definitions
      */
     public function __construct(
-        \ReflectionMethod $r,
+        ReflectionMethod $r,
         RouteInterface $route,
         array $routePattern,
         Definitions $definitions

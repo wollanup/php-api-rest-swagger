@@ -7,12 +7,12 @@ use Eukles\Entity\EntityFactoryConfig;
 use Eukles\Entity\EntityRequestInterface;
 use Eukles\Service\Router\RouteInterface;
 use Eukles\Service\Router\RouterInterface;
-use Eukles\Util\DataIterator;
 use JsonSerializable;
 use Wollanup\Api\Swagger\Definition\DefinitionModelAdd;
 use Wollanup\Api\Swagger\Definition\DefinitionModelRead;
 use Wollanup\Api\Swagger\Definition\DefinitionModelSend;
 use Wollanup\Api\Swagger\Definition\Propel\PropelModelPager;
+use Wollanup\Api\Util\DataIterator;
 
 /**
  * Class Parameters

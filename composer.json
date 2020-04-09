@@ -20,7 +20,6 @@
     }
   },
   "require": {
-    "wollanup/php-api-rest-utils": "^1.1",
     "ext-json": "*"
   },
   "require-dev": {

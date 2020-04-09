@@ -5,8 +5,10 @@ namespace Wollanup\Api\Swagger;
 use Eukles\RouteMap\RouteMapInterface;
 use Eukles\Service\Router\RouteInterface;
 use Eukles\Service\Router\RouterInterface;
-use Eukles\Util\DataIterator;
 use FastRoute\RouteParser\Std;
+use InvalidArgumentException;
+use JsonSerializable;
+use Wollanup\Api\Util\DataIterator;
 
 /**
  * Class Operations
@@ -14,19 +16,19 @@ use FastRoute\RouteParser\Std;
  * @property  Operation[] $data
  * @package Wollanup\Api\Swagger
  */
-class Operations extends DataIterator implements \JsonSerializable
+class Operations extends DataIterator implements JsonSerializable
 {
-    
+
     /**
      * @var Definitions
      */
     protected $definitions;
-    
+
     public function __construct(Definitions $definitions)
     {
         $this->definitions = $definitions;
     }
-    
+
     /**
      * Parameters constructor.
      *
@@ -44,10 +46,10 @@ class Operations extends DataIterator implements \JsonSerializable
                 $this->buildOperation($route, $tags, $this->definitions);
             }
         }
-        
+
         return $this;
     }
-    
+
     /**
      * @param RouteInterface $route
      *
@@ -60,7 +62,7 @@ class Operations extends DataIterator implements \JsonSerializable
         $parser        = new Std();
         $routesPattern = $parser->parse($route->getPattern());
         if (empty($routesPattern)) {
-            throw new \InvalidArgumentException('Unable to parse route');
+            throw new InvalidArgumentException('Unable to parse route');
         }
         foreach ($routesPattern as $routePattern) {
             $operation = new Operation($route, $routePattern, $definitions);
@@ -75,11 +77,11 @@ class Operations extends DataIterator implements \JsonSerializable
                 continue;
             }
             $operation->setTags($tags);
-            
+
             $this->data[] = $operation;
         }
     }
-    
+
     /**
      * Specify data which should be serialized to JSON
      *
@@ -91,12 +93,12 @@ class Operations extends DataIterator implements \JsonSerializable
     public function jsonSerialize()
     {
         $operations = [];
-        
+
         foreach ($this->data as $operation) {
             $operations = array_merge_recursive($operations, $operation->jsonSerialize());
         }
         ksort($operations);
-        
+
         return $operations;
     }
 }
