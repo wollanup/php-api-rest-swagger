@@ -2,15 +2,19 @@
 
 namespace Wollanup\Api\Swagger;
 
+use BadMethodCallException;
 use Eukles\Service\Router\RouteInterface;
+use JsonSerializable;
 use phpDocumentor\Reflection\DocBlockFactory;
+use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * Class Operation
  *
  * @package Wollanup\Api\Swagger
  */
-class Operation implements \JsonSerializable
+class Operation implements JsonSerializable
 {
 
     /**
@@ -79,15 +83,15 @@ class Operation implements \JsonSerializable
         $this->routePattern = $routePattern;
         $this->deprecated   = $route->isDeprecated();
         $this->path         = $this->buildSwaggerStyleRoutePattern($routePattern);
-        $this->verb         = strtolower($route->getVerb());
-        $this->operationId  = $route->getCallable() . ":" . $route->getIdentifier() . ":" . $this->path;
+        $this->verb = strtolower($route->getVerb());
+        $this->operationId = $route->getIdentifier();
 
-        $class  = $route->getActionClass();
-        $rClass = new \ReflectionClass($class);
+        $class = $route->getActionClass();
+        $rClass = new ReflectionClass($class);
 
         $method  = $route->getActionMethod();
         if ($rClass->hasMethod($method) === false) {
-            throw new \BadMethodCallException("Method {$method} Not Found in class {$rClass->getName()}");
+            throw new BadMethodCallException("Method {$method} Not Found in class {$rClass->getName()}");
         }
         $rMethod = $rClass->getMethod($method);
 
@@ -103,9 +107,9 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * @param \ReflectionMethod $r
+     * @param ReflectionMethod $r
      */
-    public function buildCommentData(\ReflectionMethod $r)
+    public function buildCommentData(ReflectionMethod $r)
     {
         if (!$r->getDocComment()) {
             return;
