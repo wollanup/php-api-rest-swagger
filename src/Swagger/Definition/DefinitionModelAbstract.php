@@ -115,6 +115,7 @@ abstract class DefinitionModelAbstract
                 return "number";
                 break;
             case "ENUM":
+            case "ARRAY":
                 return "array";
                 break;
             default:
