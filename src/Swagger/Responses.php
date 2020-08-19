@@ -39,7 +39,7 @@ class Responses implements \JsonSerializable
         $statuses = $route->getStatuses();
         if (empty($statuses)) {
             if ($r->hasReturnType()) {
-                $schema = $this->buildSchemaFromReturnType($r->getReturnType()->__toString());
+                $schema = $this->buildSchemaFromReturnType($r->getReturnType()->getName());
 
                 $this->responses["default"]["schema"] = $schema;
             }
@@ -51,7 +51,7 @@ class Responses implements \JsonSerializable
                         unset($this->responses['default']);
                     }
                     if ($r->hasReturnType()) {
-                        $schema = $this->buildSchemaFromReturnType($r->getReturnType()->__toString());
+                        $schema = $this->buildSchemaFromReturnType($r->getReturnType()->getName());
                     }
                 }
 
