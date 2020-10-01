@@ -71,8 +71,7 @@ class ParameterFromMethod extends Parameter
         } elseif (PHP_VERSION_ID > 70000) {
             $reflectionType = $param->getType();
             if ($reflectionType) {
-                $this->type = TypeHelper::determine($param->getType()
-                    ->__toString());
+                $this->type = TypeHelper::determine($param->getType()->getName());
             }
         }
     }

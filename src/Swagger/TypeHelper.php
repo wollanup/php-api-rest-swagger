@@ -15,8 +15,9 @@ class TypeHelper
      *
      * @return string
      */
-    public static function determine($type)
+    public static function determine(string $type): string
     {
+        $type = strtolower($type);
         switch ($type) {
             case 'int':
             case 'float':
