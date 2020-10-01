@@ -7,6 +7,7 @@ use Psr\Http\Message\UploadedFileInterface;
 use ReflectionMethod;
 use ReflectionParameter;
 use Wollanup\Api\Swagger\Definition\DefinitionModelAdd;
+use Wollanup\Api\Swagger\Definition\DefinitionModelChange;
 
 /**
  * Class MethodParameter
@@ -48,8 +49,13 @@ class ParameterFromMethod extends Parameter
                     $config = $route->getEntityConfig($param->getName());
                     $this->setIn(self::IN_BODY);
                     $suffix = "";
+                    // POST
                     if ($config->isTypeCreate()) {
                         $suffix = DefinitionModelAdd::SUFFIX;
+                    }
+                    // PATCH
+                    if ($config->isTypeFetch() && $route->getVerb() === 'PATCH') {
+                        $suffix = DefinitionModelChange::SUFFIX;
                     }
                     $this->setSchema($config->getEntityRequest() . $suffix);
                     $shortName = substr(strrchr($this->schema, '\\'), 1);

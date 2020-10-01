@@ -9,6 +9,7 @@ use Eukles\Service\Router\RouteInterface;
 use Eukles\Service\Router\RouterInterface;
 use JsonSerializable;
 use Wollanup\Api\Swagger\Definition\DefinitionModelAdd;
+use Wollanup\Api\Swagger\Definition\DefinitionModelChange;
 use Wollanup\Api\Swagger\Definition\DefinitionModelRead;
 use Wollanup\Api\Swagger\Definition\DefinitionModelSend;
 use Wollanup\Api\Swagger\Definition\Propel\PropelModelPager;
@@ -89,11 +90,15 @@ class Definitions extends DataIterator implements JsonSerializable
 
                 $modelAdd = new DefinitionModelAdd($class);
                 $this->data[str_replace('\\', '/', $modelAdd->getName())]
-                          = $modelAdd;
+                    = $modelAdd;
+
+                $modelChange = new DefinitionModelChange($class);
+                $this->data[str_replace('\\', '/', $modelChange->getName())]
+                    = $modelChange;
 
                 $modelSend = new DefinitionModelSend($class);
                 $this->data[str_replace('\\', '/', $modelSend->getName())]
-                           = $modelSend;
+                    = $modelSend;
             }
         }
     }
