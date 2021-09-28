@@ -341,7 +341,9 @@ class Parameter implements \JsonSerializable
             "required"    => $this->isRequired(),
         ];
         if ($param['in'] === 'body') {
-            $param["schema"] = SchemaHelper::build($this->getSchema());
+            if($this->getSchema()) {
+                $param["schema"] = SchemaHelper::build($this->getSchema());
+            }
         } else {
             $param["type"] = $this->getType();
             if ($this->hasDefault()) {
